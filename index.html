@@ -2,24 +2,28 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8" />
+  <title>Hamster Health · 倉鼠健康儀表板</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>倉鼠健康小助手</title>
   <style>
-    /* === 基本設定 === */
     :root {
-      --bg: #f7f5ff;
-      --bg-soft: #ffffff;
-      --primary: #7c5cff;
-      --primary-soft: rgba(124, 92, 255, 0.1);
-      --accent: #ffa85c;
-      --text-main: #1f2430;
-      --text-soft: #70758a;
-      --border-soft: #e3e1f5;
+      --bg-main: #050713;
+      --bg-panel: #101322;
+      --bg-panel-soft: #15192b;
+      --bg-chip: #1d2135;
+      --accent: #ffb766;
+      --accent-soft: rgba(255, 183, 102, 0.18);
+      --accent-strong: #ff9550;
+      --accent-danger: #ff5570;
+      --accent-safe: #4fe1b5;
+      --border-soft: #252942;
+      --text-main: #f5f7ff;
+      --text-soft: #9ca2c9;
+      --text-mute: #6b7194;
       --radius-lg: 18px;
       --radius-md: 12px;
-      --shadow-soft: 0 18px 40px rgba(28, 33, 60, 0.08);
-      --shadow-chip: 0 8px 24px rgba(26, 35, 80, 0.12);
-      --spacing: 18px;
+      --radius-sm: 999px;
+      --shadow-soft: 0 20px 40px rgba(0, 0, 0, 0.6);
+      --shadow-chip: 0 10px 26px rgba(0, 0, 0, 0.7);
       --transition-fast: 0.18s ease-out;
     }
 
@@ -31,16 +35,20 @@
     body {
       margin: 0;
       padding: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
-        "Noto Sans TC", "Microsoft JhengHei", sans-serif;
-      background: radial-gradient(circle at top left, #fdf2ff 0, #f7f5ff 28%, #f5fbff 70%);
+      height: 100%;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont,
+        "SF Pro Text", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+      background:
+        radial-gradient(circle at top left, #202859 0, transparent 50%),
+        radial-gradient(circle at bottom right, #1b5f66 0, transparent 52%),
+        radial-gradient(circle at top right, #5d2f7a 0, transparent 52%),
+        var(--bg-main);
       color: var(--text-main);
     }
 
     body {
-      min-height: 100vh;
       display: flex;
-      flex-direction: column;
+      min-height: 100vh;
     }
 
     a {
@@ -48,932 +56,1120 @@
       text-decoration: none;
     }
 
-    img {
-      max-width: 100%;
-      display: block;
-    }
-
     /* === Layout === */
-    .site-header {
-      position: sticky;
-      top: 0;
-      z-index: 20;
-      background: rgba(247, 245, 255, 0.88);
-      backdrop-filter: blur(16px);
-      border-bottom: 1px solid rgba(227, 225, 245, 0.7);
-    }
-
-    .container {
+    .app-shell {
+      display: grid;
+      grid-template-columns: 260px minmax(0, 1fr);
       width: 100%;
-      max-width: 1080px;
+      max-width: 1320px;
       margin: 0 auto;
-      padding: 0 20px;
+      padding: 16px;
+      gap: 16px;
     }
 
-    .header-inner {
+    .sidebar {
+      border-radius: 24px;
+      background: radial-gradient(circle at top left,
+          rgba(255, 255, 255, 0.06) 0,
+          transparent 55%),
+        var(--bg-panel);
+      border: 1px solid rgba(119, 132, 255, 0.18);
+      box-shadow: var(--shadow-soft);
+      padding: 18px 16px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .sidebar-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      height: 64px;
-    }
-
-    .logo {
-      display: inline-flex;
-      align-items: center;
       gap: 8px;
-      font-weight: 700;
-      letter-spacing: 0.03em;
-      font-size: 18px;
     }
 
-    .logo-badge {
-      width: 32px;
-      height: 32px;
+    .logo-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-icon {
+      width: 38px;
+      height: 38px;
       border-radius: 999px;
-      background: radial-gradient(circle at 30% 30%, #fffdf7 0, #ffd29b 40%, #ff9c60 100%);
+      background: radial-gradient(circle at 30% 30%, #fff7e5 0, #ffcf90 42%, #ff9550 100%);
       display: flex;
       align-items: center;
       justify-content: center;
+      font-size: 22px;
       box-shadow: var(--shadow-chip);
-      font-size: 18px;
     }
 
-    .nav {
+    .logo-text-main {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+
+    .logo-text-sub {
+      font-size: 11px;
+      color: var(--text-soft);
+    }
+
+    .profile-pill {
+      padding: 6px 9px;
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(151, 160, 240, 0.35);
+      background: rgba(12, 15, 32, 0.9);
+      font-size: 11px;
+      color: var(--text-soft);
+    }
+
+    .profile-pill span {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .nav-section-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.13em;
+      color: var(--text-mute);
+      margin-bottom: 6px;
+      padding: 0 4px;
+    }
+
+    .nav-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      gap: 4px;
+    }
+
+    .nav-item a {
       display: flex;
       align-items: center;
-      gap: 18px;
-      font-size: 14px;
-    }
-
-    .nav a {
-      padding: 6px 10px;
-      border-radius: 999px;
+      gap: 9px;
+      padding: 7px 10px;
+      border-radius: 12px;
+      font-size: 13px;
       color: var(--text-soft);
-      transition: background var(--transition-fast), color var(--transition-fast),
-        transform var(--transition-fast);
+      transition: background var(--transition-fast),
+        color var(--transition-fast),
+        transform var(--transition-fast),
+        box-shadow var(--transition-fast);
     }
 
-    .nav a:hover {
-      background: rgba(255, 255, 255, 0.9);
-      color: var(--primary);
+    .nav-icon {
+      width: 18px;
+      text-align: center;
+      font-size: 15px;
+    }
+
+    .nav-item.active a {
+      background: linear-gradient(135deg, rgba(127, 140, 255, 0.16), rgba(255, 151, 96, 0.16));
+      color: var(--text-main);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.7);
       transform: translateY(-1px);
     }
 
-    .nav-cta {
-      padding: 7px 14px;
+    .nav-item a:hover:not(.nav-item.active a) {
+      background: rgba(18, 23, 45, 0.9);
+      color: #d9ddff;
+      transform: translateY(-1px);
+    }
+
+    .nav-badge {
+      margin-left: auto;
+      font-size: 11px;
+      padding: 2px 7px;
       border-radius: 999px;
-      background: #1f2430;
-      color: #ffffff !important;
-      font-weight: 600;
-      box-shadow: 0 10px 24px rgba(13, 20, 40, 0.28);
+      background: rgba(255, 86, 121, 0.18);
+      color: #ff9bb3;
     }
 
-    /* === Hero 區 === */
-    .hero {
-      padding: 32px 0 16px;
-    }
-
-    .hero-inner {
-      display: grid;
-      grid-template-columns: minmax(0, 3fr) minmax(0, 2.6fr);
-      gap: 32px;
-      align-items: center;
-    }
-
-    .hero-label {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 4px 10px;
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.8);
-      border: 1px solid rgba(255, 210, 155, 0.7);
+    .sidebar-card {
+      margin-top: 6px;
+      border-radius: 18px;
+      padding: 10px 12px;
+      background: radial-gradient(circle at top left, rgba(255, 243, 213, 0.1) 0, transparent 65%),
+        var(--bg-panel-soft);
+      border: 1px solid rgba(255, 198, 138, 0.26);
       font-size: 12px;
-      color: #b47013;
-      box-shadow: 0 12px 30px rgba(180, 112, 19, 0.12);
-    }
-
-    .hero-label-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 999px;
-      background: #ffb75c;
-      box-shadow: 0 0 0 6px rgba(255, 183, 92, 0.28);
-    }
-
-    .hero-title {
-      margin: 14px 0 10px;
-      font-size: clamp(28px, 4vw, 36px);
-      line-height: 1.2;
-      letter-spacing: 0.02em;
-    }
-
-    .hero-highlight {
-      background: linear-gradient(120deg, #7c5cff 0, #ff9c60 45%, #ffcf5c 100%);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-      font-weight: 800;
-    }
-
-    .hero-sub {
-      margin: 0 0 18px;
       color: var(--text-soft);
-      font-size: 14px;
-      line-height: 1.7;
     }
 
-    .hero-badges {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 18px;
+    .sidebar-card-title {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 4px;
+      color: var(--text-main);
     }
 
-    .chip {
+    .sidebar-card-pill {
+      margin-top: 9px;
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 6px 10px;
+      padding: 4px 9px;
       border-radius: 999px;
-      background: rgba(255, 255, 255, 0.85);
-      border: 1px solid rgba(227, 225, 245, 0.9);
-      font-size: 12px;
+      background: rgba(5, 10, 26, 0.95);
+      border: 1px solid rgba(100, 184, 255, 0.4);
+      color: #a7d3ff;
+      font-size: 11px;
+    }
+
+    .sidebar-footer {
+      margin-top: auto;
+      font-size: 11px;
+      color: var(--text-mute);
+      border-top: 1px solid rgba(49, 56, 95, 0.7);
+      padding-top: 8px;
+      display: flex;
+      justify-content: space-between;
+      gap: 4px;
+      align-items: center;
+    }
+
+    .sidebar-footer span {
+      opacity: 0.9;
+    }
+
+    .sidebar-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--accent-safe);
+      box-shadow: 0 0 0 6px rgba(79, 225, 181, 0.3);
+      margin-right: 6px;
+    }
+
+    /* === Main === */
+    .main {
+      border-radius: 24px;
+      background: radial-gradient(circle at top right,
+          rgba(113, 127, 255, 0.12) 0,
+          transparent 55%),
+        radial-gradient(circle at bottom left,
+          rgba(255, 151, 96, 0.12) 0,
+          transparent 55%),
+        rgba(6, 8, 22, 0.96);
+      border: 1px solid rgba(123, 137, 255, 0.28);
+      box-shadow: var(--shadow-soft);
+      padding: 14px 18px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .main-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .main-title-block {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .main-title {
+      font-size: 18px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .title-chip {
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      background: rgba(34, 39, 79, 0.9);
+      border: 1px solid rgba(138, 157, 255, 0.5);
       color: var(--text-soft);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
     }
 
     .chip-dot {
       width: 7px;
       height: 7px;
       border-radius: 999px;
-      background: #7c5cff;
+      background: var(--accent-safe);
     }
 
-    .chip-strong {
-      font-weight: 600;
-      color: var(--text-main);
+    .main-subtitle {
+      font-size: 12px;
+      color: var(--text-soft);
     }
 
-    .hero-actions {
+    .main-controls {
       display: flex;
       flex-wrap: wrap;
       align-items: center;
-      gap: 10px;
-      margin-bottom: 10px;
-    }
-
-    .btn-primary {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
       gap: 8px;
-      padding: 9px 18px;
-      border-radius: 999px;
-      border: none;
-      background: linear-gradient(135deg, #7c5cff 0, #5f46df 50%, #5038c5 100%);
-      color: #ffffff;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      box-shadow: 0 14px 32px rgba(88, 72, 210, 0.45);
-      transition: transform var(--transition-fast), box-shadow var(--transition-fast),
-        filter var(--transition-fast);
+      font-size: 12px;
     }
 
-    .btn-primary:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 18px 40px rgba(70, 56, 190, 0.55);
-      filter: brightness(1.03);
-    }
-
-    .btn-ghost {
+    .pill {
+      padding: 6px 10px;
       border-radius: 999px;
-      border: 1px dashed rgba(127, 122, 179, 0.7);
-      padding: 8px 14px;
-      font-size: 13px;
-      color: #5b5f7b;
-      background: rgba(255, 255, 255, 0.8);
+      border: 1px solid rgba(71, 83, 139, 0.9);
+      background: rgba(10, 14, 36, 0.9);
+      color: var(--text-soft);
       display: inline-flex;
       align-items: center;
       gap: 6px;
       cursor: pointer;
-      transition: background var(--transition-fast), transform var(--transition-fast),
-        border-color var(--transition-fast);
+      transition: background var(--transition-fast), border-color var(--transition-fast),
+        transform var(--transition-fast);
     }
 
-    .btn-ghost:hover {
-      background: #ffffff;
+    .pill strong {
+      color: var(--accent);
+    }
+
+    .pill:hover {
+      background: rgba(16, 20, 50, 0.98);
+      border-color: rgba(129, 143, 255, 1);
       transform: translateY(-1px);
-      border-color: rgba(111, 106, 173, 0.95);
     }
 
-    .hero-hint {
-      font-size: 12px;
-      color: var(--text-soft);
-    }
-
-    .hero-right {
-      position: relative;
-    }
-
-    .hero-card {
-      position: relative;
-      padding: 20px 18px 18px;
-      border-radius: var(--radius-lg);
-      background: linear-gradient(165deg, #ffffff 0, #fbf8ff 70%, #fef7f3 100%);
-      box-shadow: var(--shadow-soft);
-      border: 1px solid rgba(227, 225, 245, 0.9);
-      overflow: hidden;
-    }
-
-    .hero-card-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 14px;
-    }
-
-    .hero-card-title {
-      font-size: 14px;
+    .pill-primary {
+      border: none;
+      background: linear-gradient(135deg, #ffb766, #ff9550);
+      color: #26120b;
       font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 8px;
+      box-shadow: 0 14px 32px rgba(0, 0, 0, 0.75);
     }
 
-    .hamster-avatar {
-      width: 32px;
-      height: 32px;
-      border-radius: 999px;
-      background: radial-gradient(circle at 30% 30%, #fffaf0 0, #ffd29b 40%, #ff9c60 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
-      box-shadow: var(--shadow-chip);
-    }
-
-    .hero-tag {
-      padding: 4px 9px;
-      border-radius: 999px;
-      background: rgba(124, 92, 255, 0.08);
-      color: #5f46df;
-      font-size: 11px;
-      font-weight: 600;
-    }
-
-    .hero-metrics {
+    /* === Cards === */
+    .grid {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 10px;
-      margin-bottom: 14px;
-      font-size: 12px;
-    }
-
-    .metric {
-      padding: 8px 9px;
-      border-radius: var(--radius-md);
-      background: rgba(255, 255, 255, 0.9);
-      border: 1px solid rgba(227, 225, 245, 0.8);
-    }
-
-    .metric-label {
-      color: var(--text-soft);
-      margin-bottom: 4px;
-      font-size: 11px;
-    }
-
-    .metric-value {
-      font-weight: 600;
-    }
-
-    .metric-chip {
-      display: inline-flex;
-      padding: 2px 7px;
-      border-radius: 999px;
-      background: rgba(255, 168, 92, 0.1);
-      color: #c6781b;
-      font-size: 10px;
-      margin-top: 4px;
-    }
-
-    .hero-bottom-row {
-      display: flex;
-      gap: 10px;
-      align-items: flex-start;
-      font-size: 11px;
-      color: var(--text-soft);
-    }
-
-    .hero-note {
-      flex: 1.1;
-      padding: 8px 10px;
-      border-radius: var(--radius-md);
-      background: rgba(255, 255, 255, 0.9);
-      border: 1px dashed rgba(227, 225, 245, 0.9);
-    }
-
-    .hero-timeline {
-      flex: 1;
-      padding: 8px 10px;
-      border-radius: var(--radius-md);
-      background: var(--primary-soft);
-      border: 1px solid rgba(124, 92, 255, 0.35);
-    }
-
-    .timeline-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 4px;
-    }
-
-    .timeline-pill {
-      width: 7px;
-      height: 22px;
-      border-radius: 999px;
-      background: linear-gradient(180deg, #7c5cff 0, #ff9c60 100%);
-      margin-right: 8px;
-    }
-
-    .hero-float {
-      position: absolute;
-      right: -8px;
-      bottom: -10px;
-      padding: 8px 11px;
-      border-radius: 18px 0 0 0;
-      background: rgba(31, 36, 48, 0.97);
-      color: #ffffff;
-      font-size: 11px;
-      box-shadow: 0 -8px 26px rgba(19, 19, 29, 0.7);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .hero-float-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 999px;
-      background: #4af39a;
-      box-shadow: 0 0 0 5px rgba(74, 243, 154, 0.3);
-    }
-
-    /* === 主內容區 === */
-    .section {
-      padding: 10px 0 30px;
-    }
-
-    .section-header {
-      display: flex;
-      align-items: baseline;
-      justify-content: space-between;
       gap: 12px;
-      margin-bottom: 16px;
     }
 
-    .section-title {
-      font-size: 18px;
-      font-weight: 600;
-    }
-
-    .section-sub {
-      font-size: 13px;
-      color: var(--text-soft);
-    }
-
-    .card-grid {
-      display: grid;
+    .grid-3 {
       grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 16px;
     }
 
     .card {
-      padding: 14px 14px 13px;
       border-radius: var(--radius-lg);
-      background: rgba(255, 255, 255, 0.96);
+      background: rgba(8, 11, 30, 0.96);
       border: 1px solid var(--border-soft);
-      box-shadow: 0 10px 26px rgba(31, 36, 48, 0.06);
+      padding: 12px 12px 10px;
+      box-shadow: 0 14px 30px rgba(0, 0, 0, 0.6);
       display: flex;
       flex-direction: column;
       gap: 6px;
-      transition: transform var(--transition-fast), box-shadow var(--transition-fast),
-        border-color var(--transition-fast), background var(--transition-fast);
-      cursor: default;
     }
 
-    .card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 16px 32px rgba(31, 36, 48, 0.12);
-      border-color: rgba(124, 92, 255, 0.45);
-      background: #ffffff;
-    }
-
-    .card-label {
-      font-size: 12px;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .card-pill {
-      padding: 2px 7px;
-      border-radius: 999px;
-      font-size: 11px;
-      background: rgba(124, 92, 255, 0.08);
-      color: #5f46df;
-    }
-
-    .card-main {
-      font-size: 13px;
-      color: var(--text-soft);
-      line-height: 1.7;
-    }
-
-    .card-footer {
-      margin-top: auto;
-      padding-top: 6px;
+    .card-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      font-size: 12px;
+      color: var(--text-soft);
+    }
+
+    .card-title {
+      font-size: 13px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--text-main);
+    }
+
+    .badge {
+      padding: 2px 7px;
+      border-radius: 999px;
+      font-size: 10px;
+      background: rgba(68, 78, 142, 0.85);
+      color: #d7ddff;
+    }
+
+    .badge-danger {
+      background: rgba(255, 86, 121, 0.14);
+      color: #ff9fb6;
+      border: 1px solid rgba(255, 86, 121, 0.4);
+    }
+
+    .metric-main {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .metric-value {
+      font-size: 22px;
+      font-weight: 700;
+    }
+
+    .metric-unit {
+      font-size: 11px;
+      color: var(--text-soft);
+      margin-left: 4px;
+    }
+
+    .metric-trend {
+      font-size: 11px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 2px;
+    }
+
+    .trend-good {
+      color: var(--accent-safe);
+    }
+
+    .trend-bad {
+      color: var(--accent-danger);
+    }
+
+    .trend-neutral {
+      color: var(--text-soft);
+    }
+
+    .sparkline {
+      margin-top: 6px;
+      height: 32px;
+      border-radius: 12px;
+      background: linear-gradient(135deg,
+          rgba(79, 108, 255, 0.35),
+          rgba(255, 151, 96, 0.4));
+      position: relative;
+      overflow: hidden;
+    }
+
+    .sparkline::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+          to right,
+          rgba(8, 10, 30, 0.8) 0,
+          rgba(8, 10, 30, 0.8) 1px,
+          transparent 1px,
+          transparent 16px
+        );
+      opacity: 0.6;
+    }
+
+    .sparkline-track {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+          to top,
+          rgba(8, 11, 30, 0.9),
+          transparent 55%
+        );
+    }
+
+    /* === Middle row === */
+    .grid-2 {
+      grid-template-columns: minmax(0, 1.8fr) minmax(0, 1.2fr);
+    }
+
+    .chart-card {
+      height: 210px;
+    }
+
+    .chart-body {
+      margin-top: 6px;
+      flex: 1;
+      border-radius: 14px;
+      background: radial-gradient(circle at top center,
+          rgba(113, 127, 255, 0.32) 0,
+          transparent 50%),
+        rgba(8, 11, 30, 0.95);
+      border: 1px solid rgba(65, 77, 150, 0.7);
+      padding: 10px 10px 8px;
+      position: relative;
+      overflow: hidden;
       font-size: 11px;
       color: var(--text-soft);
     }
 
-    .card-tag {
-      padding: 3px 7px;
+    .chart-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(to right, rgba(35, 43, 92, 0.6) 1px, transparent 1px),
+        linear-gradient(to top, rgba(35, 43, 92, 0.6) 1px, transparent 1px);
+      background-size: 40px 100%, 100% 32px;
+      opacity: 0.4;
+    }
+
+    .chart-line {
+      position: absolute;
+      inset: 18px 10px 18px 10px;
       border-radius: 999px;
-      background: rgba(244, 244, 255, 0.9);
-      border: 1px solid rgba(227, 225, 245, 0.9);
+      background:
+        linear-gradient(135deg,
+          rgba(79, 225, 181, 0.7) 0,
+          rgba(255, 183, 102, 0.85) 52%,
+          rgba(255, 100, 129, 0.9) 100%);
+      mask-image: radial-gradient(circle at 0 100%, black 0, transparent 55%),
+        radial-gradient(circle at 30% 10%, black 0, transparent 55%),
+        radial-gradient(circle at 65% 40%, black 0, transparent 55%),
+        radial-gradient(circle at 100% 5%, black 0, transparent 55%);
+      mask-size: 25% 100%;
+      mask-position: 0 0, 25% 0, 55% 0, 80% 0;
+      mask-repeat: no-repeat;
+      opacity: 0.9;
     }
 
-    .mini-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 999px;
-      margin-right: 4px;
-      background: #7c5cff;
-      display: inline-block;
-    }
-
-    /* === Tips 區 === */
-    .tips-row {
-      display: grid;
-      grid-template-columns: 1.8fr 2.2fr;
-      gap: 18px;
-      align-items: flex-start;
-    }
-
-    .tips-panel {
-      padding: 14px 14px 13px;
-      border-radius: var(--radius-lg);
-      background: rgba(31, 36, 48, 0.96);
-      color: #e9ecff;
-      box-shadow: 0 16px 38px rgba(5, 6, 14, 0.8);
-      border: 1px solid rgba(141, 147, 214, 0.5);
-      font-size: 13px;
-    }
-
-    .tips-title {
-      font-size: 15px;
-      font-weight: 600;
-      margin-bottom: 8px;
+    .chart-footer {
+      position: absolute;
+      left: 10px;
+      right: 10px;
+      bottom: 6px;
       display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      color: var(--text-mute);
+    }
+
+    .chart-legend {
+      display: flex;
+      gap: 10px;
       align-items: center;
-      gap: 8px;
     }
 
-    .tips-chip {
-      padding: 2px 8px;
+    .legend-dot {
+      width: 8px;
+      height: 8px;
       border-radius: 999px;
-      font-size: 11px;
-      background: rgba(255, 169, 104, 0.2);
-      color: #ffcf9c;
-      border: 1px solid rgba(255, 201, 153, 0.6);
+      background: var(--accent);
+      margin-right: 3px;
     }
 
-    .tips-list {
-      list-style: none;
-      padding: 0;
-      margin: 0;
+    .alert-list {
+      font-size: 12px;
+      color: var(--text-soft);
       display: grid;
       gap: 6px;
+      margin-top: 3px;
     }
 
-    .tips-list li {
+    .alert-item {
       display: flex;
       gap: 8px;
+      padding: 7px 8px;
+      border-radius: 12px;
+      background: rgba(16, 20, 44, 0.98);
+      border: 1px solid rgba(82, 93, 161, 0.7);
       align-items: flex-start;
-      line-height: 1.6;
     }
 
-    .tips-bullet {
-      margin-top: 5px;
+    .alert-icon {
+      font-size: 15px;
+      margin-top: 1px;
+    }
+
+    .alert-text-main {
+      color: var(--text-main);
+      margin-bottom: 2px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .alert-tag-row {
+      margin-top: 3px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      font-size: 10px;
+    }
+
+    .alert-tag {
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: rgba(255, 86, 121, 0.12);
+      color: #ff9bb0;
+      border: 1px solid rgba(255, 86, 121, 0.5);
+    }
+
+    .alert-tag-soft {
+      background: rgba(35, 46, 103, 0.8);
+      color: #c1c7ff;
+      border: 1px solid rgba(93, 107, 197, 0.9);
+    }
+
+    /* === Table === */
+    .table-card {
+      margin-top: 4px;
+    }
+
+    .table {
+      width: 100%;
+      border-spacing: 0;
+      border-collapse: collapse;
+      font-size: 11px;
+      margin-top: 6px;
+    }
+
+    .table thead {
+      color: var(--text-soft);
+    }
+
+    .table th,
+    .table td {
+      padding: 6px 4px;
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    .table th:first-child,
+    .table td:first-child {
+      padding-left: 0;
+    }
+
+    .table th:last-child,
+    .table td:last-child {
+      padding-right: 0;
+      text-align: right;
+    }
+
+    .table tbody tr {
+      border-top: 1px solid rgba(41, 49, 93, 0.85);
+    }
+
+    .pill-small {
+      padding: 2px 7px;
+      border-radius: 999px;
+      font-size: 10px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .pill-safe {
+      background: rgba(79, 225, 181, 0.12);
+      color: #90f0cf;
+      border: 1px solid rgba(79, 225, 181, 0.6);
+    }
+
+    .pill-watch {
+      background: rgba(255, 183, 102, 0.12);
+      color: #ffd0a2;
+      border: 1px solid rgba(255, 183, 102, 0.6);
+    }
+
+    .pill-danger {
+      background: rgba(255, 86, 121, 0.16);
+      color: #ffb1c3;
+      border: 1px solid rgba(255, 86, 121, 0.7);
+    }
+
+    .pill-dot {
       width: 6px;
       height: 6px;
       border-radius: 999px;
-      background: #ffcf80;
-      flex-shrink: 0;
+      background: currentColor;
     }
 
-    .tips-note {
-      margin-top: 10px;
-      font-size: 11px;
-      color: #a8aedf;
-    }
-
-    .tips-cards {
-      display: grid;
-      gap: 10px;
-    }
-
-    .tips-card {
-      padding: 10px 11px;
-      border-radius: var(--radius-md);
-      background: rgba(255, 255, 255, 0.97);
-      border: 1px solid var(--border-soft);
-      font-size: 12px;
-      display: flex;
-      gap: 8px;
-      align-items: flex-start;
-    }
-
-    .tips-badge {
-      padding: 3px 7px;
-      border-radius: 999px;
-      font-size: 11px;
-      background: rgba(124, 92, 255, 0.08);
-      color: #5f46df;
-      margin-bottom: 4px;
-      display: inline-block;
+    .note-soft {
+      font-size: 10px;
+      color: var(--text-mute);
+      margin-top: 4px;
     }
 
     /* === Footer === */
-    .site-footer {
-      margin-top: auto;
-      padding: 18px 0 24px;
+    .main-footer {
+      margin-top: 2px;
       font-size: 11px;
-      color: var(--text-soft);
-    }
-
-    .footer-inner {
+      color: var(--text-mute);
       display: flex;
       justify-content: space-between;
-      gap: 12px;
-      flex-wrap: wrap;
-      border-top: 1px solid rgba(220, 219, 238, 0.95);
-      padding-top: 12px;
+      gap: 8px;
+      border-top: 1px solid rgba(43, 55, 103, 0.7);
+      padding-top: 6px;
     }
 
     /* === RWD === */
-    @media (max-width: 900px) {
-      .hero-inner {
-        grid-template-columns: minmax(0, 1.2fr);
+    @media (max-width: 1024px) {
+      .app-shell {
+        grid-template-columns: 220px minmax(0, 1fr);
       }
 
-      .hero-right {
-        order: -1;
-      }
-
-      .hero {
-        padding-top: 20px;
-      }
-
-      .card-grid {
+      .grid-3 {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
 
-      .tips-row {
+      .grid-2 {
         grid-template-columns: minmax(0, 1fr);
+      }
+
+      .chart-card {
+        height: 200px;
       }
     }
 
-    @media (max-width: 640px) {
-      .header-inner {
-        gap: 10px;
+    @media (max-width: 768px) {
+      body {
+        padding: 0;
       }
 
-      .nav {
-        display: none; /* 手機就先藏選單，保持簡潔 */
+      .app-shell {
+        grid-template-columns: minmax(0, 1fr);
+        padding: 10px;
       }
 
-      .hero-card {
-        margin-top: 8px;
+      .sidebar {
+        flex-direction: row;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 12px;
       }
 
-      .card-grid {
+      .nav-section-label,
+      .nav-list,
+      .sidebar-card {
+        display: none;
+      }
+
+      .sidebar-footer {
+        border-top: none;
+        padding-top: 0;
+        margin-top: 0;
+        justify-content: flex-end;
+      }
+
+      .main {
+        padding: 12px 12px 14px;
+      }
+
+      .grid-3 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 560px) {
+      .grid-3 {
         grid-template-columns: minmax(0, 1fr);
       }
 
-      .section-header {
+      .main-header {
         flex-direction: column;
         align-items: flex-start;
+      }
+
+      .main-controls {
+        width: 100%;
+      }
+
+      .main-controls > * {
+        flex: 1;
       }
     }
   </style>
 </head>
 <body>
-  <!-- Header -->
-  <header class="site-header">
-    <div class="container header-inner">
-      <div class="logo">
-        <span class="logo-badge">🐹</span>
-        <span>Hamster Care</span>
-      </div>
-      <nav class="nav">
-        <a href="#status">今日狀態</a>
-        <a href="#tips">照護建議</a>
-        <a href="#log">記錄習慣</a>
-        <a href="#faq">常見問題</a>
-        <a href="#start" class="nav-cta">開始紀錄</a>
-      </nav>
-    </div>
-  </header>
-
-  <main>
-    <!-- Hero -->
-    <section class="hero" id="start">
-      <div class="container hero-inner">
-        <div class="hero-left">
-          <div class="hero-label">
-            <span class="hero-label-dot"></span>
-            今日已追蹤 · 你的倉鼠正在被好好照顧 🧡
+  <div class="app-shell">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo-wrap">
+          <div class="logo-icon">🐹</div>
+          <div>
+            <div class="logo-text-main">Hamster Health</div>
+            <div class="logo-text-sub">倉鼠健康儀表板</div>
           </div>
-          <h1 class="hero-title">
-            幫你的
-            <span class="hero-highlight">倉鼠</span><br />
-            做一份看得懂的健康紀錄
-          </h1>
-          <p class="hero-sub">
-            不需要醫學背景，只要每天花 30 秒，簡單記下體重、飲食、活動量，
-            系統就會幫你整理出「是不是哪裡怪怪的」。
-          </p>
+        </div>
+        <div class="profile-pill">
+          目前檔案：<span>咖啡</span>
+        </div>
+      </div>
 
-          <div class="hero-badges">
-            <span class="chip">
+      <div>
+        <div class="nav-section-label">監控項目</div>
+        <ul class="nav-list">
+          <li class="nav-item active">
+            <a href="#overview">
+              <span class="nav-icon">📊</span>
+              <span>概覽</span>
+              <span class="nav-badge">Live</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#weight">
+              <span class="nav-icon">⚖️</span>
+              <span>體重趨勢</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#water">
+              <span class="nav-icon">💧</span>
+              <span>飲水與排泄</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#activity">
+              <span class="nav-icon">🌙</span>
+              <span>夜間活動</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#settings">
+              <span class="nav-icon">⚙️</span>
+              <span>閾值與提醒</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="sidebar-card">
+        <div class="sidebar-card-title">為什麼體重這麼重要？</div>
+        小型動物生病時，體重常在你「看得出來不對勁」之前就先掉下來。
+        這個儀表板的設計，就是希望你能更早看到那條線開始往下。
+        <div class="sidebar-card-pill">
+          <span>📍</span>
+          若連續 3 天體重下降，我們會標記為「優先關注」。
+        </div>
+      </div>
+
+      <div class="sidebar-footer">
+        <div>
+          <span class="sidebar-dot"></span>
+          <span>即時計算 7 天＆ 30 天變化中</span>
+        </div>
+        <div>v0.1 · demo 介面</div>
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="main">
+      <!-- Header -->
+      <header class="main-header" id="overview">
+        <div class="main-title-block">
+          <div class="main-title">
+            咖啡 · 今日健康總覽
+            <span class="title-chip">
               <span class="chip-dot"></span>
-              <span class="chip-strong">3 個關鍵數值</span>：體重／飲水／活動
+              今日紀錄已完成
             </span>
-            <span class="chip">
-              ⏱︎ 一次紀錄約 <span class="chip-strong">30 秒內</span>
-            </span>
-            <span class="chip"> 📈 自動看出異常趨勢 </span>
           </div>
-
-          <div class="hero-actions">
-            <button class="btn-primary">
-              立即建立第一筆紀錄
-              <span>→</span>
-            </button>
-            <button class="btn-ghost">
-              👀 先看看 Demo
-            </button>
-          </div>
-          <div class="hero-hint">
-            無需登入、無需下載 · 適合新手飼主＆已經很在意細節的你
+          <div class="main-subtitle" id="dateText">
+            今天的記錄會跟最近 30 天做比較，讓你知道「今天到底算不算正常」。
           </div>
         </div>
+        <div class="main-controls">
+          <button class="pill" type="button">
+            📅 最近區間：
+            <strong>7 天</strong>
+          </button>
+          <button class="pill" type="button">
+            📈 對照：
+            <strong>過去 30 天平均</strong>
+          </button>
+          <button class="pill pill-primary" type="button">
+            ➕ 新增今日紀錄
+          </button>
+        </div>
+      </header>
 
-        <div class="hero-right">
-          <div class="hero-card">
-            <div class="hero-card-header">
-              <div class="hero-card-title">
-                <div class="hamster-avatar">🐹</div>
-                <div>
-                  咖啡 · 今日健康卡
-                </div>
-              </div>
-              <span class="hero-tag">預覽紀錄介面</span>
+      <!-- Top metrics -->
+      <section class="grid grid-3">
+        <!-- Weight -->
+        <article class="card" id="weight">
+          <div class="card-header">
+            <div class="card-title">
+              ⚖️ 體重
+              <span class="badge">核心指標</span>
             </div>
-
-            <div class="hero-metrics">
-              <div class="metric">
-                <div class="metric-label">體重</div>
-                <div class="metric-value">42.3 g</div>
-                <div class="metric-chip">穩定範圍內</div>
-              </div>
-              <div class="metric">
-                <div class="metric-label">飲水量</div>
-                <div class="metric-value">13 ml</div>
-                <div class="metric-chip">略少 · 建議觀察</div>
-              </div>
-              <div class="metric">
-                <div class="metric-label">活動量</div>
-                <div class="metric-value">中等</div>
-                <div class="metric-chip">夜間運動正常</div>
-              </div>
+            <div>基準：最近 30 天平均</div>
+          </div>
+          <div class="metric-main">
+            <div>
+              <span class="metric-value">42.3</span>
+              <span class="metric-unit">g</span>
             </div>
-
-            <div class="hero-bottom-row">
-              <div class="hero-note">
-                <div style="font-weight:600;margin-bottom:4px;font-size:11px;">今天備註</div>
-                <div>
-                  有稍微挑食，主食剩一點點。精神正常，毛也很蓬鬆。
-                </div>
-              </div>
-              <div class="hero-timeline">
-                <div class="timeline-row">
-                  <div style="display:flex;align-items:center;">
-                    <div class="timeline-pill"></div>
-                    <div>最近 7 天</div>
-                  </div>
-                  <div>體重波動 ±1.1 g</div>
-                </div>
-                <div style="font-size:10px;">
-                  若連續 3 天下降，我們會提醒你「該量體重＆看醫生」。
-                </div>
-              </div>
-            </div>
-
-            <div class="hero-float">
-              <div class="hero-float-dot"></div>
-              <div>系統：目前沒有明顯異常，但飲水量偏低，記得多補充乾淨飲水 💧</div>
+            <div class="metric-trend">
+              <span class="trend-good">▲ +0.4 g · 比上週略高</span>
+              <span class="trend-neutral">30 天波動：±1.2 g</span>
             </div>
           </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 今日狀態 -->
-    <section class="section" id="status">
-      <div class="container">
-        <div class="section-header">
-          <div class="section-title">今天要看哪幾個重點？</div>
-          <div class="section-sub">
-            別一次追太多，只抓幾個最有關「早期發現不舒服」的指標就好。
+          <div class="sparkline">
+            <div class="sparkline-track"></div>
           </div>
-        </div>
-
-        <div class="card-grid">
-          <article class="card">
-            <div class="card-label">
-              <span class="mini-dot"></span>
-              體重曲線
-              <span class="card-pill">最重要</span>
-            </div>
-            <div class="card-main">
-              對小型動物來說，「體重突然掉很多」是最容易被忽略、但最關鍵的警訊。
-              系統每次幫你算：最近 7 天＆ 30 天的變化。
-            </div>
-            <div class="card-footer">
-              <span class="card-tag">每週至少量 1 次</span>
-              <span>📉 連續下降會標記警示</span>
-            </div>
-          </article>
-
-          <article class="card">
-            <div class="card-label">
-              <span class="mini-dot"></span>
-              飲水與排泄
-            </div>
-            <div class="card-main">
-              簡單記錄「水瓶減少量」以及便便狀態（形狀、是否變少），
-              就能幫你抓出脫水、腸胃不適等早期異常。
-            </div>
-            <div class="card-footer">
-              <span class="card-tag">不用精準毫升數</span>
-              <span>💧 有明顯變少就記</span>
-            </div>
-          </article>
-
-          <article class="card">
-            <div class="card-label">
-              <span class="mini-dot"></span>
-              活動與情緒
-            </div>
-            <div class="card-main">
-              跑輪時間、是否躲起來不太出來、是否突然變得超級暴躁，
-              都可以用幾個固定選項快速勾選。
-            </div>
-            <div class="card-footer">
-              <span class="card-tag">以你平常的印象為主</span>
-              <span>🌙 夜間變化最重要</span>
-            </div>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <!-- 提示區 -->
-    <section class="section" id="tips">
-      <div class="container">
-        <div class="section-header">
-          <div class="section-title">如果數值變得「怪怪的」，我該怎麼辦？</div>
-          <div class="section-sub">
-            系統只會告訴你「有異常」，真正能決定帶不帶去看醫師的永遠是你。
+          <div class="note-soft">
+            若未來三天持續下降超過 5%，就會進入「優先關注」區。
           </div>
-        </div>
+        </article>
 
-        <div class="tips-row">
-          <aside class="tips-panel">
-            <div class="tips-title">
-              當你看到紅色提示時…
-              <span class="tips-chip">不是要你自己當醫生</span>
+        <!-- Water -->
+        <article class="card" id="water">
+          <div class="card-header">
+            <div class="card-title">
+              💧 今日飲水量
+              <span class="badge">早期脫水警訊</span>
             </div>
-            <ul class="tips-list">
-              <li>
-                <div class="tips-bullet"></div>
-                <div>
-                  系統只是在提醒：這些變化「跟之前很不一樣」，值得你多看幾眼，或拍照做紀錄。
-                </div>
-              </li>
-              <li>
-                <div class="tips-bullet"></div>
-                <div>
-                  如果你已經覺得「不太安心」，請直接優先考慮帶去看專業小動物獸醫。
-                </div>
-              </li>
-              <li>
-                <div class="tips-bullet"></div>
-                <div>
-                  記得把最近幾天的體重、飲食、環境變化一起告訴醫師，會非常有幫助。
-                </div>
-              </li>
-            </ul>
-            <div class="tips-note">
-              * 這個工具不取代醫療建議，只是幫你更早發現「哪裡怪」。
+            <div>以你自己平常習慣為基準</div>
+          </div>
+          <div class="metric-main">
+            <div>
+              <span class="metric-value">13</span>
+              <span class="metric-unit">ml（估算）</span>
             </div>
-          </aside>
+            <div class="metric-trend">
+              <span class="trend-bad">▼ -15% · 比最近一週偏少</span>
+              <span class="trend-neutral">便便量：略少</span>
+            </div>
+          </div>
+          <div class="sparkline">
+            <div class="sparkline-track"></div>
+          </div>
+          <div class="note-soft">
+            如果同時伴隨精神差、毛亂、眼睛濕濕的，建議盡早就醫評估。
+          </div>
+        </article>
 
-          <div class="tips-cards">
-            <div class="tips-card">
+        <!-- Activity -->
+        <article class="card" id="activity">
+          <div class="card-header">
+            <div class="card-title">
+              🌙 夜間活動
+              <span class="badge">行為變化</span>
+            </div>
+            <div>依你主觀印象勾選即可</div>
+          </div>
+          <div class="metric-main">
+            <div>
+              <span class="metric-value">中等</span>
+              <span class="metric-unit">跑輪約 3 小時</span>
+            </div>
+            <div class="metric-trend">
+              <span class="trend-good">😊 情緒：穩定</span>
+              <span class="trend-neutral">躲藏時間：略短</span>
+            </div>
+          </div>
+          <div class="sparkline">
+            <div class="sparkline-track"></div>
+          </div>
+          <div class="note-soft">
+            若連續好幾晚都不太出來跑輪，會被標成「異常偏低」。
+          </div>
+        </article>
+      </section>
+
+      <!-- Middle row -->
+      <section class="grid grid-2">
+        <!-- Chart -->
+        <article class="card chart-card">
+          <div class="card-header">
+            <div class="card-title">
+              📉 最近 30 天體重曲線
+              <span class="badge">只看自己的變化</span>
+            </div>
+            <div style="font-size: 11px; color: var(--text-mute);">
+              綠色區：你自己穩定時的體重範圍
+            </div>
+          </div>
+          <div class="chart-body">
+            <div class="chart-grid"></div>
+            <div class="chart-line"></div>
+            <div class="chart-footer">
+              <div>30 天前</div>
+              <div class="chart-legend">
+                <span>
+                  <span class="legend-dot"></span>實際體重
+                </span>
+                <span>虛線：你自己設定的「理想範圍」</span>
+              </div>
+              <div>今天</div>
+            </div>
+          </div>
+        </article>
+
+        <!-- Alerts -->
+        <article class="card">
+          <div class="card-header">
+            <div class="card-title">
+              🚨 異常提醒（模擬）
+              <span class="badge badge-danger">不替代醫療建議</span>
+            </div>
+            <div style="font-size: 11px; color: var(--text-mute);">
+              真的覺得怪，請優先考慮看獸醫
+            </div>
+          </div>
+
+          <div class="alert-list">
+            <div class="alert-item">
+              <div class="alert-icon">🔴</div>
               <div>
-                <div class="tips-badge">🎯 小技巧</div>
+                <div class="alert-text-main">
+                  若未來 3 天體重持續下降超過 5%
+                </div>
                 <div>
-                  每次餵食前先量體重，順便檢查看看水瓶、跑輪、砂盆，就當成跟倉鼠打招呼的儀式。
+                  系統會把這三天標記為「高風險區」，提醒你把體重、飲食、環境變化
+                  一起整理給獸醫參考。
+                </div>
+                <div class="alert-tag-row">
+                  <span class="alert-tag">⚠️ 需密切觀察</span>
+                  <span class="alert-tag-soft">建議：每日至少量一次體重</span>
                 </div>
               </div>
             </div>
-            <div class="tips-card">
+
+            <div class="alert-item">
+              <div class="alert-icon">🟠</div>
               <div>
-                <div class="tips-badge">📸 拍照紀錄</div>
+                <div class="alert-text-main">
+                  飲水量若持續偏低 &amp; 便便明顯變少
+                </div>
                 <div>
-                  如果你發現毛亂、姿勢怪、眼睛濕濕的，不一定要懂原因，
-                  先拍照存起來，之後看醫生時超有幫助。
+                  這可能代表脫水或腸胃不適。若同時看到精神變差、毛亂、持續蜷縮不動，
+                  建議盡早就醫。
+                </div>
+                <div class="alert-tag-row">
+                  <span class="alert-tag-soft">拍照記錄便便外觀</span>
+                  <span class="alert-tag-soft">注意：是否有呼吸聲異常</span>
                 </div>
               </div>
             </div>
-            <div class="tips-card">
+
+            <div class="alert-item">
+              <div class="alert-icon">🟡</div>
               <div>
-                <div class="tips-badge">🧊 不要突然大改變</div>
+                <div class="alert-text-main">
+                  行為突然變得超級躁動或超級安靜
+                </div>
                 <div>
-                  換飼料、換墊材、換整個籠子配置，盡量一次只改一件事，
-                  才知道「是哪一個改變」讓倉鼠不舒服。
+                  環境變動（換籠、換飼料、新成員）也會造成短暫改變。
+                  如果你同時看到體重或飲食也「一起怪」，那就更值得注意。
+                </div>
+                <div class="alert-tag-row">
+                  <span class="alert-tag-soft">先回想最近是不是有大改變</span>
+                  <span class="alert-tag-soft">若超過 3〜5 天未改善 → 建議就醫</span>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      </div>
-    </section>
+        </article>
+      </section>
 
-    <!-- FAQ 簡短區 -->
-    <section class="section" id="faq">
-      <div class="container">
-        <div class="section-header">
-          <div class="section-title">常見小問題</div>
-          <div class="section-sub">真的不用很複雜，重點是「持續」而不是「完美」。</div>
+      <!-- Table -->
+      <section class="card table-card" id="log">
+        <div class="card-header">
+          <div class="card-title">
+            📝 最近幾天的重點紀錄（一覽）
+          </div>
+          <div style="font-size: 11px; color: var(--text-mute);">
+            真正有用的就這幾格：體重、飲水、活動、你自己的備註。
+          </div>
         </div>
 
-        <div class="card-grid">
-          <article class="card">
-            <div class="card-label">
-              <span class="mini-dot"></span> 忘記紀錄幾天怎麼辦？
-            </div>
-            <div class="card-main">
-              完全沒關係，從今天開始重新記就好。
-              健康紀錄的價值在於「有一段時間的趨勢」，不是每天一定要完美不中斷。
-            </div>
-          </article>
-          <article class="card">
-            <div class="card-label">
-              <span class="mini-dot"></span> 體重多少才算正常？
-            </div>
-            <div class="card-main">
-              不同種類、不同個體標準都不一樣。
-              我們更看重的是「跟自己前一段時間相比，有沒有突然大幅變化」。
-            </div>
-          </article>
-          <article class="card">
-            <div class="card-label">
-              <span class="mini-dot"></span> 一隻以上的倉鼠可以用嗎？
-            </div>
-            <div class="card-main">
-              可以，你可以把每一隻當成一個「檔案」來記錄，
-              之後也可以再擴充功能做多隻切換。
-            </div>
-          </article>
-        </div>
-      </div>
-    </section>
-  </main>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>日期</th>
+              <th>體重</th>
+              <th>飲水 / 排泄</th>
+              <th>夜間活動</th>
+              <th>備註</th>
+              <th>狀態</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>今天</td>
+              <td>42.3 g</td>
+              <td>13 ml · 便便略少</td>
+              <td>中等 · 跑輪約 3 小時</td>
+              <td>挑食一點，但精神正常。</td>
+              <td>
+                <span class="pill-small pill-watch">
+                  <span class="pill-dot"></span>
+                  偏少 · 建議觀察
+                </span>
+              </td>
+            </tr>
+            <tr>
+              <td>昨天</td>
+              <td>42.1 g</td>
+              <td>15 ml · 正常</td>
+              <td>偏高 · 很愛跑輪</td>
+              <td>有換新墊材，稍微多挖洞。</td>
+              <td>
+                <span class="pill-small pill-safe">
+                  <span class="pill-dot"></span>
+                  穩定
+                </span>
+              </td>
+            </tr>
+            <tr>
+              <td>前天</td>
+              <td>41.9 g</td>
+              <td>14 ml · 正常</td>
+              <td>正常</td>
+              <td>整體很穩定。</td>
+              <td>
+                <span class="pill-small pill-safe">
+                  <span class="pill-dot"></span>
+                  穩定
+                </span>
+              </td>
+            </tr>
+            <tr>
+              <td>3 天前</td>
+              <td>41.8 g</td>
+              <td>12 ml · 稍少</td>
+              <td>略少</td>
+              <td>天氣變冷，開始多窩在窩窩裡。</td>
+              <td>
+                <span class="pill-small pill-watch">
+                  <span class="pill-dot"></span>
+                  記得多補水
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
 
-  <footer class="site-footer">
-    <div class="container footer-inner">
-      <div>🐹 Hamster Care · 倉鼠健康小助手（前端示意畫面）</div>
-      <div>你可以自由修改文字＆程式碼，做成自己的專案。</div>
-    </div>
-  </footer>
+        <div class="note-soft">
+          之後如果你真的實作資料庫或表單，只要把這一段改成用程式 render 出來，就可以變成真正的動態儀表板。
+        </div>
+      </section>
+
+      <!-- Footer -->
+      <footer class="main-footer">
+        <div>
+          🐹 Hamster Health 儀表板 · 這是一個純前端示意畫面，你可以自由修改文字與結構。
+        </div>
+        <div>
+          建議搭配自己實際的量測數據，一起帶去給專門看小動物的獸醫參考。
+        </div>
+      </footer>
+    </main>
+  </div>
+
+  <script>
+    // 小小 JS：把今天日期顯示在副標題
+    (function () {
+      var el = document.getElementById("dateText");
+      if (!el) return;
+      var d = new Date();
+      var y = d.getFullYear();
+      var m = d.getMonth() + 1;
+      var day = d.getDate();
+      var weekday = ["日", "一", "二", "三", "四", "五", "六"][d.getDay()];
+      var dateStr = y + " 年 " + m + " 月 " + day + " 日（週" + weekday + "）";
+      el.textContent =
+        "今天是 " +
+        dateStr +
+        "，下面的圖表與提醒都是以「你自己的 30 天紀錄」為基準做比較。";
+    })();
+  </script>
 </body>
-</html>
+                </html>
